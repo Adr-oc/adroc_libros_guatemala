@@ -46,52 +46,52 @@
                     </div>
                 </div>
             </div>
-            <t t-set="data_report_margin_top" t-value="45"/>
-            <t t-set="data_report_header_spacing" t-value="35"/>
+            <t t-set="data_report_margin_top" t-value="50"/>
+            <t t-set="data_report_header_spacing" t-value="40"/>
 
             <t t-call="web.external_layout">
-                <div class="page" style="font-size: 8px !important;">
+                <div class="page" style="font-size: 7px !important; margin-top: 15px;">
                     <t t-set="result" t-value="lineas(data)"/>
 
                     <table class="table table-sm" style="width:100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background-color: #e0e0e0;">
-                                <th style="border: 1px solid #ccc; padding: 3px;">Tipo</th>
-                                <th style="border: 1px solid #ccc; padding: 3px;">Fecha</th>
-                                <th style="border: 1px solid #ccc; padding: 3px;">Serie</th>
-                                <th style="border: 1px solid #ccc; padding: 3px;">Numero</th>
-                                <th style="border: 1px solid #ccc; padding: 3px;">Proveedor</th>
-                                <th style="border: 1px solid #ccc; padding: 3px;">NIT</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">Comp.</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">Comp. Exe.</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">Serv.</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">Serv. Exe.</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">Comb.</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">IDP</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">Imp.</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">Peq.</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">IVA</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 3px;">Total</th>
+                                <th style="border: 1px solid #ccc; padding: 1px;">Tipo</th>
+                                <th style="border: 1px solid #ccc; padding: 1px;">Fecha</th>
+                                <th style="border: 1px solid #ccc; padding: 1px;">Serie</th>
+                                <th style="border: 1px solid #ccc; padding: 1px;">Numero</th>
+                                <th style="border: 1px solid #ccc; padding: 1px;">Proveedor</th>
+                                <th style="border: 1px solid #ccc; padding: 1px;">NIT</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">Comp.</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">Comp. Exe.</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">Serv.</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">Serv. Exe.</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">Comb.</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">IDP</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">Imp.</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">Peq.</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">IVA</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 1px;">Total</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr t-foreach="result['lineas']" t-as="l" t-attf-style="background-color: {{ '#ffffff' if l_index % 2 == 0 else '#f9f9f9' }};">
-                                <td style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['tipo']"/></td>
-                                <td style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['fecha']" t-options='{"widget": "date"}'/></td>
-                                <td style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['serie']"/></td>
-                                <td style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['numero']"/></td>
-                                <td style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['proveedor']"/></td>
-                                <td style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['nit']"/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['compra']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['compra_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['servicio']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['servicio_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['combustible']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['combustible_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['importacion']+l['importacion_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['pequeno']+l['pequeno_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['iva']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 2px;"><span t-esc="l['total']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['tipo']"/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['fecha']" t-options='{"widget": "date"}'/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['serie']"/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['numero']"/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['proveedor']"/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['nit']"/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['compra']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['compra_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['servicio']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['servicio_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['combustible']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['combustible_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['importacion']+l['importacion_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['pequeno']+l['pequeno_exento']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['iva']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['total']" t-options='{"widget": "float", "precision": 2}'/></td>
                             </tr>
                         </tbody>
                         <tfoot>

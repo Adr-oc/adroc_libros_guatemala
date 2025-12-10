@@ -46,11 +46,11 @@
                     </div>
                 </div>
             </div>
-            <t t-set="data_report_margin_top" t-value="45"/>
-            <t t-set="data_report_header_spacing" t-value="35"/>
+            <t t-set="data_report_margin_top" t-value="50"/>
+            <t t-set="data_report_header_spacing" t-value="40"/>
 
             <t t-call="web.external_layout">
-                <div class="page" style="font-size: 8px !important;">
+                <div class="page" style="font-size: 7px !important; margin-top: 15px;">
                     <t t-set="result" t-value="lineas(data)"/>
 
                     <table class="table table-sm" style="width:100%; border-collapse: collapse;">
@@ -62,36 +62,36 @@
                                 </th>
                             </tr>
                             <tr style="background-color: #e0e0e0;">
-                                <th style="border: 1px solid #ccc; padding: 4px;">Fecha</th>
-                                <th style="border: 1px solid #ccc; padding: 4px;">Documento</th>
-                                <th style="border: 1px solid #ccc; padding: 4px;">Nombre</th>
-                                <th style="border: 1px solid #ccc; padding: 4px;">Concepto</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 4px;">Debito</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 4px;">Credito</th>
-                                <th class="text-right" style="border: 1px solid #ccc; padding: 4px;">Balance</th>
+                                <th style="border: 1px solid #ccc; padding: 2px;">Fecha</th>
+                                <th style="border: 1px solid #ccc; padding: 2px;">Documento</th>
+                                <th style="border: 1px solid #ccc; padding: 2px;">Nombre</th>
+                                <th style="border: 1px solid #ccc; padding: 2px;">Concepto</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 2px;">Debito</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 2px;">Credito</th>
+                                <th class="text-right" style="border: 1px solid #ccc; padding: 2px;">Balance</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr t-foreach="result['lineas']" t-as="l" t-attf-style="background-color: {{ '#ffffff' if l_index % 2 == 0 else '#f9f9f9' }};">
-                                <td style="border: 1px solid #ddd; padding: 3px;"><span t-esc="l['fecha']" t-options='{"widget": "date"}'/></td>
-                                <td style="border: 1px solid #ddd; padding: 3px;"><span t-esc="l['documento']"/></td>
-                                <td style="border: 1px solid #ddd; padding: 3px;"><span t-esc="l['nombre']"/></td>
-                                <td style="border: 1px solid #ddd; padding: 3px;"><span t-esc="l['concepto']"/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 3px;"><span t-esc="l['debito']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 3px;"><span t-esc="l['credito']" t-options='{"widget": "float", "precision": 2}'/></td>
-                                <td class="text-right" style="border: 1px solid #ddd; padding: 3px;"><span t-esc="l['balance']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['fecha']" t-options='{"widget": "date"}'/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['documento']"/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['nombre']"/></td>
+                                <td style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['concepto']"/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['debito']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['credito']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right" style="border: 1px solid #ddd; padding: 1px;"><span t-esc="l['balance']" t-options='{"widget": "float", "precision": 2}'/></td>
                             </tr>
                         </tbody>
                         <tfoot>
                             <tr style="background-color: #e0e0e0; font-weight: bold;">
-                                <td colspan="4" class="text-right" style="border: 1px solid #ccc; padding: 4px;"><b>Totales</b></td>
-                                <td class="text-right" style="border: 1px solid #ccc; padding: 4px; border-top: 2px solid #333;">
+                                <td colspan="4" class="text-right" style="border: 1px solid #ccc; padding: 2px;"><b>Totales</b></td>
+                                <td class="text-right" style="border: 1px solid #ccc; padding: 2px; border-top: 2px solid #333;">
                                     <span t-esc="result['totales']['debito']" t-options='{"widget": "float", "precision": 2}'/>
                                 </td>
-                                <td class="text-right" style="border: 1px solid #ccc; padding: 4px; border-top: 2px solid #333;">
+                                <td class="text-right" style="border: 1px solid #ccc; padding: 2px; border-top: 2px solid #333;">
                                     <span t-esc="result['totales']['credito']" t-options='{"widget": "float", "precision": 2}'/>
                                 </td>
-                                <td class="text-right" style="border: 1px solid #ccc; padding: 4px; border-top: 2px solid #333;">
+                                <td class="text-right" style="border: 1px solid #ccc; padding: 2px; border-top: 2px solid #333;">
                                     <span t-esc="result['totales']['balance']" t-options='{"widget": "float", "precision": 2}'/>
                                 </td>
                             </tr>

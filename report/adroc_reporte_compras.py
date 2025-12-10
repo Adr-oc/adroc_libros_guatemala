@@ -21,8 +21,9 @@ class AdrocReporteCompras(models.AbstractModel):
         totales['pequeno'] = {'exento': 0, 'neto': 0, 'iva': 0, 'total': 0, 'isr': 0}
 
         journal_ids = [x for x in datos['diarios_id']]
+        # Incluir facturas posted y cancel (para mostrar anuladas con invoice_series/invoice_number)
         facturas = self.env['account.move'].search([
-            ('state', 'in', ['posted']),
+            ('state', 'in', ['posted', 'cancel']),
             ('move_type', 'in', ['in_invoice', 'in_refund']),
             ('journal_id', 'in', journal_ids),
             ('date', '<=', datos['fecha_hasta']),
@@ -31,6 +32,14 @@ class AdrocReporteCompras(models.AbstractModel):
 
         lineas = []
         for f in facturas:
+            # Obtener invoice_series e invoice_number
+            serie = f.invoice_series if hasattr(f, 'invoice_series') and f.invoice_series else ''
+            numero = f.invoice_number if hasattr(f, 'invoice_number') and f.invoice_number else ''
+
+            # Si está anulada y NO tiene invoice_series e invoice_number, no incluir
+            if f.state == 'cancel' and (not serie or not numero):
+                continue
+
             etiquetas = [tag.name for tag in f.etiqueta_ids] if hasattr(f, 'etiqueta_ids') else []
 
             totales['num_facturas'] += 1
@@ -52,8 +61,6 @@ class AdrocReporteCompras(models.AbstractModel):
             if f.partner_id.pequenio_contribuyente if hasattr(f.partner_id, 'pequenio_contribuyente') else False:
                 tipo += ' PEQ'
 
-            serie = f.x_studio_serie if hasattr(f, 'x_studio_serie') and f.x_studio_serie else ''
-            numero = f.x_studio_nmero_de_dte if hasattr(f, 'x_studio_nmero_de_dte') and f.x_studio_nmero_de_dte else ''
             nit = f.partner_id.vat if f.partner_id.vat else ''
 
             linea = {
@@ -79,6 +86,11 @@ class AdrocReporteCompras(models.AbstractModel):
                 'isr': 0,
                 'total': 0
             }
+
+            # Si está anulada (pero tiene serie y número), agregar con valores en cero
+            if f.state == 'cancel':
+                lineas.append(linea)
+                continue
 
             filtered_lines = list(filter(lambda line: 'Compras' in etiquetas or
                                          'Servicios' in etiquetas or

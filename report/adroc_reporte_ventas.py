@@ -29,6 +29,14 @@ class AdrocReporteVentas(models.AbstractModel):
 
         lineas = []
         for f in facturas:
+            # Obtener invoice_series e invoice_number
+            serie = f.invoice_series if hasattr(f, 'invoice_series') and f.invoice_series else ''
+            numero = f.invoice_number if hasattr(f, 'invoice_number') and f.invoice_number else ''
+
+            # Si está anulada y NO tiene invoice_series e invoice_number, no incluir
+            if f.state == 'cancel' and (not serie or not numero):
+                continue
+
             totales['num_facturas'] += 1
 
             tipo_cambio = 1
@@ -45,9 +53,6 @@ class AdrocReporteVentas(models.AbstractModel):
                 tipo = 'NC'
             if hasattr(f, 'nota_debito') and f.nota_debito:
                 tipo = 'ND'
-
-            serie = f.x_studio_serie if hasattr(f, 'x_studio_serie') and f.x_studio_serie else ''
-            numero = f.x_studio_nmero_de_dte if hasattr(f, 'x_studio_nmero_de_dte') and f.x_studio_nmero_de_dte else ''
 
             linea = {
                 'estado': f.state,
@@ -70,8 +75,8 @@ class AdrocReporteVentas(models.AbstractModel):
                 'total': 0
             }
 
+            # Si está anulada (pero tiene serie y número), agregar con valores en cero
             if f.state == 'cancel':
-                linea['numero'] = f.name
                 lineas.append(linea)
                 continue
 

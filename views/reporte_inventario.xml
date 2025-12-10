@@ -46,11 +46,11 @@
                     </div>
                 </div>
             </div>
-            <t t-set="data_report_margin_top" t-value="45"/>
-            <t t-set="data_report_header_spacing" t-value="35"/>
+            <t t-set="data_report_margin_top" t-value="50"/>
+            <t t-set="data_report_header_spacing" t-value="40"/>
 
             <t t-call="web.external_layout">
-                <div class="page" style="font-size: 8px !important;">
+                <div class="page" style="font-size: 7px !important; margin-top: 15px;">
                     <t t-set="result" t-value="lineas(data)"/>
                     <t t-set="total_activo" t-value="0"/>
                     <t t-set="total_pasivo" t-value="0"/>
