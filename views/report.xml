@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Libro de Banco -->
+    <record id="adroc_asistente_reporte_banco_view_form" model="ir.ui.view">
+        <field name="name">adroc_libros_guatemala.asistente_reporte_banco.form</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_banco</field>
+        <field name="arch" type="xml">
+            <form string="Libro de Banco">
+                <group>
+                    <group>
+                        <field name="cuenta_bancaria_id" />
+                        <field name="folio_inicial" />
+                    </group>
+                    <group>
+                        <field name="fecha_desde" />
+                        <field name="fecha_hasta" />
+                        <field name="name" invisible="1" />
+                        <field name="archivo" filename="name" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="print_report" string="Imprimir PDF" type="object" class="oe_highlight" />
+                    <button name="print_report_excel" string="Exportar Excel" type="object" class="oe_highlight" />
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_adroc_asistente_reporte_banco" model="ir.actions.act_window">
+        <field name="name">Libro de Banco</field>
+        <field name="res_model">adroc_libros_guatemala.asistente_reporte_banco</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_adroc_reporte_banco" model="ir.actions.report">
+        <field name="name">Libro de Banco</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_banco</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adroc_libros_guatemala.adroc_reporte_banco</field>
+        <field name="report_file">adroc_libros_guatemala.adroc_reporte_banco</field>
+    </record>
+
+    <!-- Libro de Compras -->
+    <record id="adroc_asistente_reporte_compras_view_form" model="ir.ui.view">
+        <field name="name">adroc_libros_guatemala.asistente_reporte_compras.form</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_compras</field>
+        <field name="arch" type="xml">
+            <form string="Libro de Compras">
+                <group>
+                    <group>
+                        <field name="diarios_id" widget="many2many_tags" />
+                        <field name="impuesto_id" />
+                        <field name="folio_inicial" />
+                    </group>
+                    <group>
+                        <field name="fecha_desde" />
+                        <field name="fecha_hasta" />
+                        <field name="name" invisible="1" />
+                        <field name="archivo" filename="name" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="print_report" string="Imprimir PDF" type="object" class="oe_highlight" />
+                    <button name="print_report_excel" string="Exportar Excel" type="object" class="oe_highlight" />
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_adroc_asistente_reporte_compras" model="ir.actions.act_window">
+        <field name="name">Libro de Compras</field>
+        <field name="res_model">adroc_libros_guatemala.asistente_reporte_compras</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_adroc_reporte_compras" model="ir.actions.report">
+        <field name="name">Libro de Compras</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_compras</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adroc_libros_guatemala.adroc_reporte_compras</field>
+        <field name="report_file">adroc_libros_guatemala.adroc_reporte_compras</field>
+        <field name="paperformat_id" ref="base.paperformat_us"/>
+    </record>
+
+    <!-- Libro de Ventas -->
+    <record id="adroc_asistente_reporte_ventas_view_form" model="ir.ui.view">
+        <field name="name">adroc_libros_guatemala.asistente_reporte_ventas.form</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_ventas</field>
+        <field name="arch" type="xml">
+            <form string="Libro de Ventas">
+                <group>
+                    <group>
+                        <field name="diarios_id" widget="many2many_tags" />
+                        <field name="impuesto_id" />
+                        <field name="folio_inicial" />
+                        <field name="resumido" />
+                    </group>
+                    <group>
+                        <field name="fecha_desde" />
+                        <field name="fecha_hasta" />
+                        <field name="name" invisible="1" />
+                        <field name="archivo" filename="name" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="print_report" string="Imprimir PDF" type="object" class="oe_highlight" />
+                    <button name="print_report_excel" string="Exportar Excel" type="object" class="oe_highlight" />
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_adroc_asistente_reporte_ventas" model="ir.actions.act_window">
+        <field name="name">Libro de Ventas</field>
+        <field name="res_model">adroc_libros_guatemala.asistente_reporte_ventas</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_adroc_reporte_ventas" model="ir.actions.report">
+        <field name="name">Libro de Ventas</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_ventas</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adroc_libros_guatemala.adroc_reporte_ventas</field>
+        <field name="report_file">adroc_libros_guatemala.adroc_reporte_ventas</field>
+        <field name="paperformat_id" ref="base.paperformat_us"/>
+    </record>
+
+    <!-- Libro Diario -->
+    <record id="adroc_asistente_reporte_diario_view_form" model="ir.ui.view">
+        <field name="name">adroc_libros_guatemala.asistente_reporte_diario.form</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_diario</field>
+        <field name="arch" type="xml">
+            <form string="Libro Diario">
+                <group>
+                    <group>
+                        <field name="cuentas_id" widget="many2many_tags" />
+                        <field name="folio_inicial" />
+                        <field name="agrupado_por_dia" />
+                        <field name="agrupado_por_diario" />
+                    </group>
+                    <group>
+                        <field name="fecha_desde" />
+                        <field name="fecha_hasta" />
+                        <field name="name" invisible="1" />
+                        <field name="archivo" filename="name" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="print_report" string="Imprimir PDF" type="object" class="oe_highlight" />
+                    <button name="print_report_excel" string="Exportar Excel" type="object" class="oe_highlight" />
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_adroc_asistente_reporte_diario" model="ir.actions.act_window">
+        <field name="name">Libro Diario</field>
+        <field name="res_model">adroc_libros_guatemala.asistente_reporte_diario</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_adroc_reporte_diario" model="ir.actions.report">
+        <field name="name">Libro Diario</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_diario</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adroc_libros_guatemala.adroc_reporte_diario</field>
+        <field name="report_file">adroc_libros_guatemala.adroc_reporte_diario</field>
+    </record>
+
+    <!-- Libro Mayor -->
+    <record id="adroc_asistente_reporte_mayor_view_form" model="ir.ui.view">
+        <field name="name">adroc_libros_guatemala.asistente_reporte_mayor.form</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_mayor</field>
+        <field name="arch" type="xml">
+            <form string="Libro Mayor">
+                <group>
+                    <group>
+                        <field name="cuentas_id" widget="many2many_tags" />
+                        <field name="folio_inicial" />
+                        <field name="agrupado_por_dia" />
+                        <field name="agrupado_por_diario" />
+                    </group>
+                    <group>
+                        <field name="fecha_desde" />
+                        <field name="fecha_hasta" />
+                        <field name="name" invisible="1" />
+                        <field name="archivo" filename="name" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="print_report" string="Imprimir PDF" type="object" class="oe_highlight" />
+                    <button name="print_report_excel" string="Exportar Excel" type="object" class="oe_highlight" />
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_adroc_asistente_reporte_mayor" model="ir.actions.act_window">
+        <field name="name">Libro Mayor</field>
+        <field name="res_model">adroc_libros_guatemala.asistente_reporte_mayor</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_adroc_reporte_mayor" model="ir.actions.report">
+        <field name="name">Libro Mayor</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_mayor</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adroc_libros_guatemala.adroc_reporte_mayor</field>
+        <field name="report_file">adroc_libros_guatemala.adroc_reporte_mayor</field>
+    </record>
+
+    <!-- Libro Inventario -->
+    <record id="adroc_asistente_reporte_inventario_view_form" model="ir.ui.view">
+        <field name="name">adroc_libros_guatemala.asistente_reporte_inventario.form</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_inventario</field>
+        <field name="arch" type="xml">
+            <form string="Libro Inventario">
+                <group>
+                    <group>
+                        <field name="cuentas_id" widget="many2many_tags" />
+                        <field name="folio_inicial" />
+                    </group>
+                    <group>
+                        <field name="fecha_desde" />
+                        <field name="fecha_hasta" />
+                        <field name="name" invisible="1" />
+                        <field name="archivo" filename="name" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="print_report" string="Imprimir PDF" type="object" class="oe_highlight" />
+                    <button name="print_report_excel" string="Exportar Excel" type="object" class="oe_highlight" />
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_adroc_asistente_reporte_inventario" model="ir.actions.act_window">
+        <field name="name">Libro Inventario</field>
+        <field name="res_model">adroc_libros_guatemala.asistente_reporte_inventario</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_adroc_reporte_inventario" model="ir.actions.report">
+        <field name="name">Libro Inventario</field>
+        <field name="model">adroc_libros_guatemala.asistente_reporte_inventario</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adroc_libros_guatemala.adroc_reporte_inventario</field>
+        <field name="report_file">adroc_libros_guatemala.adroc_reporte_inventario</field>
+    </record>
+
+    <!-- Top Proveedores -->
+    <record id="adroc_asistente_top_proveedores_view_form" model="ir.ui.view">
+        <field name="name">adroc_libros_guatemala.asistente_top_proveedores.form</field>
+        <field name="model">adroc_libros_guatemala.asistente_top_proveedores</field>
+        <field name="arch" type="xml">
+            <form string="Top Proveedores">
+                <group>
+                    <group>
+                        <field name="proveedor_id" widget="many2many_tags" />
+                        <field name="folio_inicial" />
+                    </group>
+                    <group>
+                        <field name="fecha_desde" />
+                        <field name="fecha_hasta" />
+                        <field name="name" invisible="1" />
+                        <field name="archivo" filename="name" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="print_report" string="Imprimir PDF" type="object" class="oe_highlight" />
+                    <button name="print_report_excel" string="Exportar Excel" type="object" class="oe_highlight" />
+                    <button string="Cancelar" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_adroc_asistente_top_proveedores" model="ir.actions.act_window">
+        <field name="name">Top Proveedores</field>
+        <field name="res_model">adroc_libros_guatemala.asistente_top_proveedores</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_adroc_top_proveedores" model="ir.actions.report">
+        <field name="name">Top Proveedores</field>
+        <field name="model">adroc_libros_guatemala.asistente_top_proveedores</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adroc_libros_guatemala.adroc_reporte_top_proveedores</field>
+        <field name="report_file">adroc_libros_guatemala.adroc_reporte_top_proveedores</field>
+    </record>
+
+    <!-- Reporte Partida -->
+    <record id="action_adroc_reporte_partida" model="ir.actions.report">
+        <field name="name">Reporte Partida</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">adroc_libros_guatemala.adroc_reporte_partida</field>
+        <field name="report_file">adroc_libros_guatemala.adroc_reporte_partida</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_adroc_libros_guatemala" name="Libros Guatemala" parent="account.menu_finance_reports" sequence="200"/>
+
+    <menuitem id="menu_adroc_libro_banco" name="Libro de Banco" parent="menu_adroc_libros_guatemala"
+        action="action_adroc_asistente_reporte_banco" sequence="10"/>
+
+    <menuitem id="menu_adroc_libro_compras" name="Libro de Compras" parent="menu_adroc_libros_guatemala"
+        action="action_adroc_asistente_reporte_compras" sequence="20"/>
+
+    <menuitem id="menu_adroc_libro_ventas" name="Libro de Ventas" parent="menu_adroc_libros_guatemala"
+        action="action_adroc_asistente_reporte_ventas" sequence="30"/>
+
+    <menuitem id="menu_adroc_libro_diario" name="Libro Diario" parent="menu_adroc_libros_guatemala"
+        action="action_adroc_asistente_reporte_diario" sequence="40"/>
+
+    <menuitem id="menu_adroc_libro_mayor" name="Libro Mayor" parent="menu_adroc_libros_guatemala"
+        action="action_adroc_asistente_reporte_mayor" sequence="50"/>
+
+    <menuitem id="menu_adroc_libro_inventario" name="Libro Inventario" parent="menu_adroc_libros_guatemala"
+        action="action_adroc_asistente_reporte_inventario" sequence="60"/>
+
+    <menuitem id="menu_adroc_top_proveedores" name="Top Proveedores" parent="menu_adroc_libros_guatemala"
+        action="action_adroc_asistente_top_proveedores" sequence="70"/>
+
+</odoo>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="adroc_reporte_mayor">
+        <t t-call="web.html_container">
+            <div class="header">
+                <div class="row">
+                    <div class="o_background_header">
+                        <div class="row col-xs-12">
+                            <div class="col-1">
+                                <div class="text-left">
+                                    <div>
+                                        <img t-if="current_company_id.logo" t-att-src="image_data_uri(current_company_id.logo_web)" class="" alt="Logo"/>
+                                        <div class="w-100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center col-11">
+                                <div class="text-center">
+                                    <div>
+                                        <h6 style="font-size: 13px !important;"><span t-esc="current_company_id.name"/></h6>
+                                        <h6 style="font-size: 10px !important;"><span t-esc="current_company_id.company_registry"/></h6>
+                                        <h6 style="font-size: 10px !important;"><span t-esc="current_company_id.vat"/></h6>
+                                        <h6 style="font-size: 10px !important;">Libro mayor general</h6>
+                                        <h6 style="font-size: 10px !important;">Fecha del: <span t-esc="data['fecha_desde']" t-options='{"widget": "date"}'/> al <span t-esc="data['fecha_hasta']" t-options='{"widget": "date"}'/></h6>
+                                        <h6 style="font-size: 10px !important;">Expresado en GTQ</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <div class="row">
+                    <div class="col-12">
+                        <ul class="text-center">
+                            <li t-if="current_company_id.street" class="list-inline-item d-inline" style="font-size: 10px !important;">
+                                <span t-field="current_company_id.street"/> <span t-field="current_company_id.street2"/>
+                            </li>
+                            <li t-if="current_company_id.website" class="list-inline-item d-inline" style="font-size: 10px !important;">
+                                <span t-field="current_company_id.website"/>
+                            </li>
+                        </ul>
+                        <t t-set="data_report_page_offset" t-value="data['folio_inicial'] + 1"/>
+                        <h6 class="" style="font-size: 10px !important;">Folio: <span class="page" t-esc="data['folio_inicial'] - 1"></span></h6>
+                    </div>
+                </div>
+            </div>
+            <t t-set="data_report_margin_top" t-value="45"/>
+            <t t-set="data_report_header_spacing" t-value="35"/>
+
+            <t t-call="web.external_layout">
+                <div class="page" style="font-size: 8px !important;">
+                    <t t-set="result" t-value="lineas(data)"/>
+
+                    <table style="width:100%">
+                        <t t-if="data['agrupado_por_dia'] == true">
+                            <thead>
+                                <tr>
+                                    <th><b>Codigo</b></th>
+                                    <th>Cuenta</th>
+                                    <th>Fecha</th>
+                                    <th class="text-right">Debe</th>
+                                    <th class="text-right">Haber</th>
+                                    <th class="text-right">Saldo acumulado mensual</th>
+                                    <th class="text-right">Saldo acumulado anual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="result['lineas']" t-as="l">
+                                    <t t-if="l['saldo_inicial'] != 0 or l['saldo_final'] != 0 or l['total_debe'] != 0 or l['total_haber'] != 0">
+                                        <t t-set="acumulativoMesLinea" t-value="0"/>
+                                        <t t-set="acumulativoAnualLinea" t-value="0"/>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-right" colspan="5">Saldo Inicial</th>
+                                            <th class="text-right"><span t-esc="l['saldo_inicial']" t-options='{"widget": "float", "precision": 2}'/></th>
+                                        </tr>
+                                        <tr>
+                                            <th><t t-esc="l['codigo']"/></th>
+                                            <th><span t-esc="l['cuenta']"/></th>
+                                            <th></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                            <th class="text-right"></th>
+                                        </tr>
+                                        <t t-set="sumarLineaAnual" t-value="l['saldo_inicial']"/>
+                                        <t t-set="sumarLineaMes" t-value="0"/>
+                                        <tr t-foreach="l['diarios']" t-as="diario">
+                                            <t t-foreach="l['diarios'][diario]" t-as="fecha">
+                                                <t t-set="sumarLineaMes" t-value="sumarLineaMes + (l['diarios'][diario][fecha]['debe'] - l['diarios'][diario][fecha]['haber'])"/>
+                                                <t t-set="sumarLineaAnual" t-value="sumarLineaAnual + (l['diarios'][diario][fecha]['debe'] - l['diarios'][diario][fecha]['haber'])"/>
+                                                <t t-set="acumulativoMesLinea" t-value="sumarLineaMes"/>
+                                                <t t-set="acumulativoAnual" t-value="sumarLineaAnual"/>
+                                                <tr>
+                                                    <td></td>
+                                                    <td t-esc="diario"></td>
+                                                    <td t-esc="fecha"></td>
+                                                    <td class="text-end"><span t-esc="l['diarios'][diario][fecha]['debe']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                                    <td class="text-end"><span t-esc="l['diarios'][diario][fecha]['haber']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                                    <td class="text-right"><span t-esc="acumulativoMesLinea" t-options='{"widget": "float", "precision": 2}'/></td>
+                                                    <td class="text-right"><span t-esc="acumulativoAnual" t-options='{"widget": "float", "precision": 2}'/></td>
+                                                </tr>
+                                            </t>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="3" class="text-center"><b>Total</b></td>
+                                            <th style="border-top: 1px double; width:125px" class="text-right">
+                                                <span t-esc="l['total_debe']" t-options='{"widget": "float", "precision": 2}'/>
+                                            </th>
+                                            <th style="border-top: 1px double; width:125px" class="text-right">
+                                                <span t-esc="l['total_haber']" t-options='{"widget": "float", "precision": 2}'/>
+                                            </th>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-right" colspan="5" style="border-top: 1px double; border-bottom: 4px double; width:125px">Saldo Final</th>
+                                            <th class="text-right" style="border-top: 1px double; border-bottom: 4px double; width:125px">
+                                                <span t-esc="l['saldo_final']" t-options='{"widget": "float", "precision": 2}'/>
+                                            </th>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </t>
+                        <t t-else="">
+                            <thead>
+                                <tr>
+                                    <th>Codigo</th>
+                                    <th>Cuenta</th>
+                                    <th class="text-right">Saldo Inicial</th>
+                                    <th class="text-right">Debe</th>
+                                    <th class="text-right">Haber</th>
+                                    <th class="text-right">Saldo Final</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="result['lineas']" t-as="l">
+                                    <td><span t-esc="l['codigo']"/></td>
+                                    <td><span t-esc="l['cuenta']"/></td>
+                                    <td class="text-right"><span t-esc="l['saldo_inicial']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-right">
+                                        <span t-if="'debe' in l" t-esc="l['debe']" t-options='{"widget": "float", "precision": 2}'/>
+                                        <span t-else="">0.00</span>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-if="'haber' in l" t-esc="l['haber']" t-options='{"widget": "float", "precision": 2}'/>
+                                        <span t-else="">0.00</span>
+                                    </td>
+                                    <td class="text-right"><span t-esc="l['saldo_final']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td><b>Totales</b></td>
+                                    <td></td>
+                                    <td style="border-top: 1px double; border-bottom: 4px double; width:125px" class="text-right">
+                                        <b>
+                                            <span t-if="'debe' in result['totales']" t-esc="result['totales']['debe']" t-options='{"widget": "float", "precision": 2}'/>
+                                            <span t-else="">0.00</span>
+                                        </b>
+                                    </td>
+                                    <td style="border-top: 1px double; border-bottom: 4px double; width:125px" class="text-right">
+                                        <b>
+                                            <span t-if="'haber' in result['totales']" t-esc="result['totales']['haber']" t-options='{"widget": "float", "precision": 2}'/>
+                                            <span t-else="">0.00</span>
+                                        </b>
+                                    </td>
+                                    <td class="text-right"></td>
+                                </tr>
+                            </tbody>
+                        </t>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

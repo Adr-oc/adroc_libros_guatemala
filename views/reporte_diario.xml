@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="adroc_reporte_diario">
+        <t t-call="web.html_container">
+            <div class="header">
+                <div class="row">
+                    <div class="o_background_header">
+                        <div class="row col-xs-12">
+                            <div class="col-1">
+                                <div class="text-left">
+                                    <div>
+                                        <img t-if="current_company_id.logo" t-att-src="image_data_uri(current_company_id.logo_web)" class="" alt="Logo"/>
+                                        <div class="w-100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center col-11">
+                                <div class="text-center">
+                                    <div>
+                                        <h6 style="font-size: 13px !important;"><span t-esc="current_company_id.name"/></h6>
+                                        <h6 style="font-size: 10px !important;"><span t-esc="current_company_id.company_registry"/></h6>
+                                        <h6 style="font-size: 10px !important;"><span t-esc="current_company_id.vat"/></h6>
+                                        <h6 style="font-size: 10px !important;">Libro diario</h6>
+                                        <h6 style="font-size: 10px !important;">Fecha del: <span t-esc="data['fecha_desde']" t-options='{"widget": "date"}'/> al <span t-esc="data['fecha_hasta']" t-options='{"widget": "date"}'/></h6>
+                                        <h6 style="font-size: 10px !important;">Expresado en GTQ</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <div class="row">
+                    <div class="col-12">
+                        <ul class="text-center">
+                            <li t-if="current_company_id.street" class="list-inline-item d-inline" style="font-size: 10px !important;">
+                                <span t-field="current_company_id.street"/> <span t-field="current_company_id.street2"/>
+                            </li>
+                            <li t-if="current_company_id.website" class="list-inline-item d-inline" style="font-size: 10px !important;">
+                                <span t-field="current_company_id.website"/>
+                            </li>
+                        </ul>
+                        <t t-set="data_report_page_offset" t-value="data['folio_inicial']+1"/>
+                        <h6 class="" style="font-size: 10px !important;">Folio: <span class="page" t-esc="data['folio_inicial']-1"></span></h6>
+                    </div>
+                </div>
+            </div>
+            <t t-set="data_report_margin_top" t-value="45"/>
+            <t t-set="data_report_header_spacing" t-value="35"/>
+
+            <t t-call="web.external_layout">
+                <div class="page" style="font-size: 8px !important;">
+                    <t t-set="result" t-value="lineas(data)"/>
+
+                    <table style="width:100%">
+                        <t t-if="data['agrupado_por_dia']">
+                            <thead>
+                                <tr>
+                                    <th style="width:50px;">Fecha</th>
+                                    <th style="width:60px;">Poliza</th>
+                                    <th>Codigo</th>
+                                    <th>Cuenta</th>
+                                    <th class="text-right">Debe</th>
+                                    <th class="text-right">Haber</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="result['lineas']" t-as="l">
+                                    <tr>
+                                        <td><span t-esc="l['fecha']" t-esc-options='{"widget": "date"}'/></td>
+                                        <td><span t-esc="l['poliza']"/></td>
+                                        <td><span t-esc="l['codigo']"/></td>
+                                        <td><span t-esc="l['cuenta']"/></td>
+                                        <td class="text-right"><span t-esc="l['debe']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                        <td class="text-right"><span t-esc="l['haber']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-center"><b>Totales</b></td>
+                                        <td class="text-right"><b><span t-esc="l['total_debe']" t-options='{"widget": "float", "precision": 2}'/></b></td>
+                                        <td class="text-right"><b><span t-esc="l['total_haber']" t-options='{"widget": "float", "precision": 2}'/></b></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </t>
+                        <t t-else="">
+                            <t t-foreach="result['resultados_por_mes'].items()" t-as="mes_data">
+                                <tr>
+                                    <td colspan="7" style="background-color: #f0f0f0; padding: 10px;">
+                                        <span style="font-size: 1.2em; font-weight: bold;">Mes: <span t-esc="mes_data[0]"/></span>
+                                    </td>
+                                </tr>
+                                <t t-foreach="mes_data[1]['diarios'].items()" t-as="diario_data">
+                                    <tr>
+                                        <td colspan="7" style="padding-left: 20px; padding-top: 10px;">
+                                            <b>Diario: <span t-esc="diario_data[0]"/></b>
+                                        </td>
+                                    </tr>
+                                    <thead style="background-color: #e0e0e0;">
+                                        <tr>
+                                            <th style="padding-left: 40px;">Codigo</th>
+                                            <th>Cuenta</th>
+                                            <th>Poliza</th>
+                                            <th class="text-right">Debe</th>
+                                            <th class="text-right">Haber</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="diario_data[1]['cuentas']" t-as="cuenta_data">
+                                            <td style="padding-left: 40px;"><span t-esc="cuenta_data['codigo']"/></td>
+                                            <td><span t-esc="cuenta_data['cuenta']"/></td>
+                                            <td><span t-esc="cuenta_data['poliza']"/></td>
+                                            <td class="text-right"><span t-esc="cuenta_data['debe']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                            <td class="text-right"><span t-esc="cuenta_data['haber']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                        </tr>
+                                    </tbody>
+                                    <tr>
+                                        <td colspan="3" style="padding-left: 20px;"><b>Totales Diario</b></td>
+                                        <td class="text-right"><b><span t-esc="diario_data[1]['totales_diario']['debe']" t-options='{"widget": "float", "precision": 2}'/></b></td>
+                                        <td class="text-right"><b><span t-esc="diario_data[1]['totales_diario']['haber']" t-options='{"widget": "float", "precision": 2}'/></b></td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="7"><hr style="border-top: 1px dashed #ccc; width:100%;"/></td>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td colspan="3" style="padding-left: 10px;">
+                                        <span style="font-size: 1.1em; font-weight: bold;">Totales Mes</span>
+                                    </td>
+                                    <td class="text-right"><b><span t-esc="mes_data[1]['totales_mes']['debe']" t-options='{"widget": "float", "precision": 2}'/></b></td>
+                                    <td class="text-right"><b><span t-esc="mes_data[1]['totales_mes']['haber']" t-options='{"widget": "float", "precision": 2}'/></b></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7"><hr style="border-top: 2px double #333; width:100%;"/></td>
+                                </tr>
+                            </t>
+                        </t>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

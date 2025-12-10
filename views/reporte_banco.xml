@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="adroc_reporte_banco">
+        <t t-call="web.html_container">
+            <div class="header">
+                <div class="row">
+                    <div class="o_background_header">
+                        <div class="row col-xs-12">
+                            <div class="col-1">
+                                <div class="text-left">
+                                    <div>
+                                        <img t-if="current_company_id.logo" t-att-src="image_data_uri(current_company_id.logo_web)" class="" alt="Logo"/>
+                                        <div class="w-100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center col-11">
+                                <div class="text-center">
+                                    <div>
+                                        <h6 style="font-size: 13px !important;"><span t-esc="current_company_id.name"/></h6>
+                                        <h6 style="font-size: 10px !important;"><span t-esc="current_company_id.company_registry"/></h6>
+                                        <h6 style="font-size: 10px !important;"><span t-esc="current_company_id.vat"/></h6>
+                                        <h6 style="font-size: 10px !important;">Libro de Banco</h6>
+                                        <h6 style="font-size: 10px !important;">Fecha Hasta: <span t-esc="data['fecha_hasta']" t-options='{"widget": "date"}'/></h6>
+                                        <h6 style="font-size: 10px !important;">Expresado en GTQ</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <div class="row">
+                    <div class="col-12">
+                        <ul class="text-center">
+                            <li t-if="current_company_id.street" class="list-inline-item d-inline" style="font-size: 10px !important;">
+                                <span t-field="current_company_id.street"/> <span t-field="current_company_id.street2"/>
+                            </li>
+                            <li t-if="current_company_id.website" class="list-inline-item d-inline" style="font-size: 10px !important;">
+                                <span t-field="current_company_id.website"/>
+                            </li>
+                        </ul>
+                        <t t-set="data_report_page_offset" t-value="data['folio_inicial']+1"/>
+                        <h6 class="" style="font-size: 10px !important;">Folio: <span class="page" t-esc="data['folio_inicial']-1"></span></h6>
+                    </div>
+                </div>
+            </div>
+            <t t-set="data_report_margin_top" t-value="45"/>
+            <t t-set="data_report_header_spacing" t-value="35"/>
+
+            <t t-call="web.external_layout">
+                <div class="page" style="font-size: 8px !important;">
+                    <t t-set="result" t-value="lineas(data)"/>
+
+                    <table style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Balance Inicial</th>
+                                <th class="text-right">
+                                    <span t-esc="balance_inicial['balance'] if not balance_inicial['balance_moneda'] else balance_inicial['balance_moneda']" t-options='{"widget": "float", "precision": 2}'/>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Documento</th>
+                                <th>Nombre</th>
+                                <th>Concepto</th>
+                                <th class="text-right">Debito</th>
+                                <th class="text-right">Credito</th>
+                                <th class="text-right">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="result['lineas']" t-as="l">
+                                <td><span t-esc="l['fecha']" t-options='{"widget": "date"}'/></td>
+                                <td><span t-esc="l['documento']"/></td>
+                                <td><span t-esc="l['nombre']"/></td>
+                                <td><span t-esc="l['concepto']"/></td>
+                                <td class="text-right"><span t-esc="l['debito']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right"><span t-esc="l['credito']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                <td class="text-right"><span t-esc="l['balance']" t-options='{"widget": "float", "precision": 2}'/></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="text-center"><b>Totales</b></td>
+                                <td style="border-top: 1px double; border-bottom: 4px double; width:70px" class="text-right">
+                                    <span t-esc="result['totales']['debito']" t-options='{"widget": "float", "precision": 2}'/>
+                                </td>
+                                <td style="border-top: 1px double; border-bottom: 4px double; width:70px" class="text-right">
+                                    <span t-esc="result['totales']['credito']" t-options='{"widget": "float", "precision": 2}'/>
+                                </td>
+                                <td style="border-top: 1px double; border-bottom: 4px double; width:70px" class="text-right">
+                                    <span t-esc="result['totales']['balance']" t-options='{"widget": "float", "precision": 2}'/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
