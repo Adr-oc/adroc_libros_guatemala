@@ -156,18 +156,20 @@ class AdrocReporteCompras(models.AbstractModel):
             amount_untaxed = 0
             total_tax_amount = 0
             total_isr = 0
-            for subtotal_group in amount_json["groups_by_subtotal"].values():
-                for tax_group in subtotal_group:
-                    if 'ISR' in tax_group['tax_group_name']:
-                        total_isr += -(tax_group["tax_group_amount"]) if f.move_type != 'in_invoice' else (
-                            tax_group["tax_group_amount"])
+            # Verificar que groups_by_subtotal existe antes de iterar
+            if amount_json and "groups_by_subtotal" in amount_json:
+                for subtotal_group in amount_json["groups_by_subtotal"].values():
+                    for tax_group in subtotal_group:
+                        if 'ISR' in tax_group['tax_group_name']:
+                            total_isr += -(tax_group["tax_group_amount"]) if f.move_type != 'in_invoice' else (
+                                tax_group["tax_group_amount"])
 
-                    if 'ISR' not in tax_group['tax_group_name']:
-                        total_tax_amount += -(tax_group["tax_group_amount"]) if f.move_type != 'in_invoice' else (
-                            tax_group["tax_group_amount"])
+                        if 'ISR' not in tax_group['tax_group_name']:
+                            total_tax_amount += -(tax_group["tax_group_amount"]) if f.move_type != 'in_invoice' else (
+                                tax_group["tax_group_amount"])
 
-            amount_untaxed = -amount_json['amount_untaxed'] if f.move_type != 'in_invoice' else (
-                amount_json["amount_untaxed"])
+            amount_untaxed = -amount_json.get('amount_untaxed', 0) if f.move_type != 'in_invoice' else (
+                amount_json.get("amount_untaxed", 0))
             if f.currency_id.id == 2:
                 tasa_cambio_rec = self.env['res.currency.rate'].search(
                     [('currency_id', '=', 2), ('name', '=', f.invoice_date)])
