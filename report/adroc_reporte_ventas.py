@@ -23,8 +23,8 @@ class AdrocReporteVentas(models.AbstractModel):
             ('state', 'in', ['posted', 'cancel']),
             ('move_type', 'in', ['out_invoice', 'out_refund']),
             ('journal_id', 'in', journal_ids),
-            ('date', '<=', datos['fecha_hasta']),
-            ('date', '>=', datos['fecha_desde']),
+            ('invoice_date', '<=', datos['fecha_hasta']),
+            ('invoice_date', '>=', datos['fecha_desde']),
         ])
 
         lineas = []
@@ -57,7 +57,7 @@ class AdrocReporteVentas(models.AbstractModel):
             linea = {
                 'estado': f.state,
                 'tipo': tipo,
-                'fecha': f.date,
+                'fecha': f.invoice_date,
                 'serie': serie,
                 'numero': numero,
                 'cliente': f.partner_id.name,
