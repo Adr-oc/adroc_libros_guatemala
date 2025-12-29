@@ -44,6 +44,14 @@ class AdrocReporteCompras(models.AbstractModel):
 
             totales['num_facturas'] += 1
 
+            # Obtener tasa de cambio para quetzalizacion
+            tasa_cambio = 1
+            if f.currency_id.id == 2:  # USD
+                tasa_cambio_rec = self.env['res.currency.rate'].search(
+                    [('currency_id', '=', 2), ('name', '=', f.invoice_date)], limit=1)
+                tasa_cambio = tasa_cambio_rec.inverse_company_rate if tasa_cambio_rec else 1
+
+            # Tipo de cambio legacy (para compatibilidad con código existente)
             tipo_cambio = 1
             if f.currency_id.id != f.company_id.currency_id.id:
                 total = 0
@@ -99,6 +107,26 @@ class AdrocReporteCompras(models.AbstractModel):
                                          'Pequenos contribuyentes' in etiquetas,
                                          f.invoice_line_ids))
 
+            # Calcular impuestos UNA SOLA VEZ por factura
+            all_lines = self.env['account.move.line'].search([('move_id', '=', f.id)])
+            taxes = self.env['account.tax'].search([('name', '!=', False)])
+            taxes_name = [tax.name for tax in taxes]
+
+            total_iva_factura = 0
+            total_isr_factura = 0
+
+            for i in all_lines:
+                i_name = str(i.name)
+                is_valid_name = len(i_name) > 0
+                if is_valid_name and i_name in taxes_name:
+                    if 'ISR' in i_name:
+                        # ISR: sumar el valor absoluto
+                        total_isr_factura += abs(i.credit) if abs(i.credit) > 0 else abs(i.debit)
+                    elif 'IVA' in i_name:
+                        # IVA: considerar el signo según tipo de documento
+                        tax_amount = -(i.credit) if f.move_type != 'in_invoice' else (i.debit)
+                        total_iva_factura += tax_amount
+
             amount_json = json.loads(json.dumps(f.tax_totals))
             for l in filtered_lines:
                 cantidad = (l.quantity)
@@ -118,74 +146,33 @@ class AdrocReporteCompras(models.AbstractModel):
                 elif 'Pequenos contribuyentes' in etiquetas:
                     tipo_linea = 'pequeno'
 
-                r = self.env['account.move.line'].search([('move_id', '=', l.move_id.id)])
-                taxes = self.env['account.tax'].search([('name', '!=', False)])
                 price_subtotal = -(l.price_subtotal) if f.move_type != 'in_invoice' else (l.price_subtotal)
-                if f.currency_id.id == 2:
-                    tasa_cambio_rec = self.env['res.currency.rate'].search(
-                        [('currency_id', '=', 2), ('name', '=', f.invoice_date)])
-                    tasa_cambio = tasa_cambio_rec.inverse_company_rate if tasa_cambio_rec else 1
-                    price_subtotal = price_subtotal * tasa_cambio
+                # Aplicar quetzalizacion
+                price_subtotal = price_subtotal * tasa_cambio
 
                 linea['base'] += price_subtotal
-                impuestos_extras = 0
-                taxes_name = []
-                for tax in taxes:
-                    taxes_name.append(tax.name)
+
                 if len(l.tax_ids) > 0:
                     linea[tipo_linea] += price_subtotal
-                    for i in r:
-                        i_name = str(i.name)
-                        tax = -(i.credit) if f.move_type != 'in_invoice' else (i.debit)
-                        is_valid_name = True if len(i_name) > 0 else False
-                        if 'ISR' in i_name and i_name in taxes_name and is_valid_name:
-                            linea_isr = abs(i.credit) if abs(i.credit) > 0 else abs(i.debit)
-                            linea['isr'] = linea_isr
-
-                        if 'IVA' in i_name and i_name in taxes_name and is_valid_name:
-                            linea['iva'] = tax
-
-                        elif i_name in taxes_name and is_valid_name:
-                            linea[tipo_linea + '_exento'] += tax
-
-                        if 'tasa municipal' in i_name.lower():
-                            impuestos_extras += tax
                 else:
-                    linea[tipo_linea + '_exento'] = price_subtotal
+                    linea[tipo_linea + '_exento'] += price_subtotal
 
-            amount_untaxed = 0
-            total_tax_amount = 0
-            total_isr = 0
-            # Verificar que groups_by_subtotal existe antes de iterar
-            if amount_json and "groups_by_subtotal" in amount_json:
-                for subtotal_group in amount_json["groups_by_subtotal"].values():
-                    for tax_group in subtotal_group:
-                        if 'ISR' in tax_group['tax_group_name']:
-                            total_isr += -(tax_group["tax_group_amount"]) if f.move_type != 'in_invoice' else (
-                                tax_group["tax_group_amount"])
+            # Asignar impuestos calculados (una vez por factura, no por línea)
+            linea['iva'] = total_iva_factura
+            linea['isr'] = total_isr_factura
 
-                        if 'ISR' not in tax_group['tax_group_name']:
-                            total_tax_amount += -(tax_group["tax_group_amount"]) if f.move_type != 'in_invoice' else (
-                                tax_group["tax_group_amount"])
-
-            amount_untaxed = -amount_json.get('amount_untaxed', 0) if f.move_type != 'in_invoice' else (
-                amount_json.get("amount_untaxed", 0))
-            if f.currency_id.id == 2:
-                tasa_cambio_rec = self.env['res.currency.rate'].search(
-                    [('currency_id', '=', 2), ('name', '=', f.invoice_date)])
-                tasa_cambio = tasa_cambio_rec.inverse_company_rate if tasa_cambio_rec else 1
-                amount_untaxed = amount_untaxed * tasa_cambio
-                total_tax_amount = total_tax_amount * tasa_cambio
-                total_isr = total_isr * tasa_cambio
-
-            r = self.env['account.move.line'].search([('move_id', '=', f.id)])
+            # Calcular total desde las líneas contables
+            # Los valores debit/credit ya están en quetzales
             total = 0
-            for i in r:
+            for i in all_lines:
                 total += i.debit
 
-            linea['total'] = total
+            # Para notas de crédito, invertir el signo
             if tipo == 'NCCQ' or tipo == 'NC':
                 linea['total'] = total * -1
+            else:
+                linea['total'] = total
+
             lineas.append(linea)
 
         # Sumar los totales despues de procesar las lineas, incluyendo el ISR
