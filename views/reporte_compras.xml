@@ -9,12 +9,12 @@
                             <div class="col-1">
                                 <div class="text-left">
                                     <div>
-                                        <img t-if="current_company_id.logo" t-att-src="image_data_uri(current_company_id.logo_web)" class="" alt="Logo"/>
+                                        <img t-if="current_company_id.logo" t-att-src="image_data_uri(current_company_id.logo_web)" style="max-width: 80px; max-height: 60px; object-fit: contain;" alt="Logo"/>
                                         <div class="w-100"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="text-center col-12">
+                            <div class="text-center col-11">
                                 <div class="text-center">
                                     <div>
                                         <h6 style="font-size: 13px !important;"><span t-esc="current_company_id.name"/></h6>
