@@ -39,14 +39,25 @@ class AdrocReporteVentas(models.AbstractModel):
 
             totales['num_facturas'] += 1
 
+            # Obtener tasa de cambio para quetzalizacion
             tipo_cambio = 1
-            if f.currency_id.id != f.company_id.currency_id.id:
-                total = 0
-                for l in f.line_ids:
-                    if l.account_id.reconcile:
-                        total += l.debit - l.credit
-                if f.amount_total != 0:
-                    tipo_cambio = abs(total / f.amount_total)
+            if f.currency_id.id == 2:  # USD
+                # Buscar tasa de cambio de la fecha exacta
+                tasa_cambio_rec = self.env['res.currency.rate'].search(
+                    [('currency_id', '=', 2), ('name', '=', f.invoice_date)], limit=1)
+
+                if not tasa_cambio_rec:
+                    # Si no existe, buscar la última tasa de cambio registrada
+                    tasa_cambio_rec = self.env['res.currency.rate'].search(
+                        [('currency_id', '=', 2), ('name', '<=', f.invoice_date)],
+                        order='name desc', limit=1)
+
+                if not tasa_cambio_rec:
+                    # Si aún no hay ninguna, buscar cualquier tasa registrada
+                    tasa_cambio_rec = self.env['res.currency.rate'].search(
+                        [('currency_id', '=', 2)], order='name desc', limit=1)
+
+                tipo_cambio = tasa_cambio_rec.inverse_company_rate if tasa_cambio_rec else 1
 
             tipo = 'FACT'
             if f.move_type != 'out_invoice':

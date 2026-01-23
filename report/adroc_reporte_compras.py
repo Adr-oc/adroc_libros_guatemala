@@ -47,19 +47,22 @@ class AdrocReporteCompras(models.AbstractModel):
             # Obtener tasa de cambio para quetzalizacion
             tasa_cambio = 1
             if f.currency_id.id == 2:  # USD
+                # Buscar tasa de cambio de la fecha exacta
                 tasa_cambio_rec = self.env['res.currency.rate'].search(
                     [('currency_id', '=', 2), ('name', '=', f.invoice_date)], limit=1)
-                tasa_cambio = tasa_cambio_rec.inverse_company_rate if tasa_cambio_rec else 1
 
-            # Tipo de cambio legacy (para compatibilidad con código existente)
-            tipo_cambio = 1
-            if f.currency_id.id != f.company_id.currency_id.id:
-                total = 0
-                for l in f.line_ids:
-                    if l.account_id.reconcile:
-                        total += l.debit - l.credit
-                if f.amount_total != 0:
-                    tipo_cambio = abs(total / f.amount_total)
+                if not tasa_cambio_rec:
+                    # Si no existe, buscar la última tasa de cambio registrada
+                    tasa_cambio_rec = self.env['res.currency.rate'].search(
+                        [('currency_id', '=', 2), ('name', '<=', f.invoice_date)],
+                        order='name desc', limit=1)
+
+                if not tasa_cambio_rec:
+                    # Si aún no hay ninguna, buscar cualquier tasa registrada
+                    tasa_cambio_rec = self.env['res.currency.rate'].search(
+                        [('currency_id', '=', 2)], order='name desc', limit=1)
+
+                tasa_cambio = tasa_cambio_rec.inverse_company_rate if tasa_cambio_rec else 1
 
             tipo = 'FACT'
             if f.move_type != 'in_invoice':
@@ -129,11 +132,6 @@ class AdrocReporteCompras(models.AbstractModel):
 
             amount_json = json.loads(json.dumps(f.tax_totals))
             for l in filtered_lines:
-                cantidad = (l.quantity)
-                precio = (l.price_unit * (1 - (l.discount or 0.0) / 100.0)) * tipo_cambio
-                if tipo == 'NCCQ' or tipo == 'NC':
-                    precio = precio * -1
-
                 tipo_linea = 'Servicios'
                 if 'Compras' in etiquetas:
                     tipo_linea = 'compra'
