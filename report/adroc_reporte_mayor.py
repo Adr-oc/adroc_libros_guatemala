@@ -79,9 +79,13 @@ class AdrocReporteMayor(models.AbstractModel):
                 totales['debe'] += r['debit']
                 totales['haber'] += r['credit']
                 poliza += 1
+                # Extract date value - read_group returns date as string or tuple
+                fecha_value = r['date']
+                if isinstance(fecha_value, tuple):
+                    fecha_value = fecha_value[0]  # Get actual date value from tuple
                 linea = {
                     'id': account.id,
-                    'fecha': r['date'],
+                    'fecha': fecha_value,
                     'poliza': poliza,
                     'codigo': account.code,
                     'cuenta': account.name,

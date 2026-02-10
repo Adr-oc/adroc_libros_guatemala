@@ -65,8 +65,12 @@ class AdrocReporteDiario(models.AbstractModel):
             for r in move_lines:
                 account = self.env['account.account'].browse(r['account_id'][0])
                 polizaCant += 1
+                # Extract date value - read_group returns date as string or tuple
+                fecha_value = r['date']
+                if isinstance(fecha_value, tuple):
+                    fecha_value = fecha_value[0]  # Get actual date value from tuple
                 linea = {
-                    'fecha': r['date'],
+                    'fecha': fecha_value,
                     'poliza': polizaCant,
                     'codigo': account.code,
                     'cuenta': account.name,
