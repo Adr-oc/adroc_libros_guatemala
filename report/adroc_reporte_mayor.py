@@ -175,6 +175,7 @@ class AdrocReporteMayor(models.AbstractModel):
                     'cuenta': linea['cuenta'],
                     'saldo_inicial': linea['saldo_inicial'],
                     'saldo_final': linea['saldo_final'],
+                    'fechas': linea.get('fechas', []),
                     'diarios': diarios,
                     'total_debe': linea['total_debe'],
                     'total_haber': linea['total_haber'],
