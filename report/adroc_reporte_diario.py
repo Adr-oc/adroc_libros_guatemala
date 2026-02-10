@@ -30,7 +30,7 @@ class AdrocReporteDiario(models.AbstractModel):
             domain=[
                 ('account_id', '=', cuenta),
                 ('date', '<', fecha_desde),
-                ('date', '>=', fecha.strftime('%Y-1-1'))
+                ('date', '>=', fecha.strftime('%Y-01-01'))
             ],
             fields=['debit', 'credit'],
             groupby=[],
