@@ -14,26 +14,25 @@ class AdrocReporteInventario(models.AbstractModel):
 
     def retornar_saldo_inicial_todos_anios(self, cuenta, fecha_desde, fecha_hasta):
         saldo_inicial = 0
-        self.env.cr.execute(
-            'select a.id, a.code as codigo, a.name as cuenta, sum(l.debit) as debe, sum(l.credit) as haber '
-            'from account_move_line l join account_account a on(l.account_id = a.id)'
-            'where a.id = %s and l.date < %s group by a.id, a.code, a.name,l.debit,l.credit',
-            (cuenta, fecha_hasta)
-        )
-        for m in self.env.cr.dictfetchall():
-            saldo_inicial += m['debe'] - m['haber']
+        # Use ORM instead of raw SQL to avoid database schema issues
+        move_lines = self.env['account.move.line'].search([
+            ('account_id', '=', cuenta),
+            ('date', '<', fecha_hasta)
+        ])
+        for line in move_lines:
+            saldo_inicial += line.debit - line.credit
         return saldo_inicial
 
     def retornar_saldo_inicial_inicio_anio(self, cuenta, fecha_desde, fecha_hasta):
         saldo_inicial = 0
-        self.env.cr.execute(
-            'select a.id, a.code as codigo, a.name as cuenta, sum(l.debit) as debe, sum(l.credit) as haber '
-            'from account_move_line l join account_account a on(l.account_id = a.id)'
-            'where a.id = %s and l.date < %s and l.date >= %s group by a.id, a.code, a.name,l.debit,l.credit',
-            (cuenta, fecha_hasta, fecha_desde)
-        )
-        for m in self.env.cr.dictfetchall():
-            saldo_inicial += m['debe'] - m['haber']
+        # Use ORM instead of raw SQL to avoid database schema issues
+        move_lines = self.env['account.move.line'].search([
+            ('account_id', '=', cuenta),
+            ('date', '<', fecha_hasta),
+            ('date', '>=', fecha_desde)
+        ])
+        for line in move_lines:
+            saldo_inicial += line.debit - line.credit
         return saldo_inicial
 
     def lineas(self, datos):
@@ -55,34 +54,38 @@ class AdrocReporteInventario(models.AbstractModel):
             ('date', '<=', datos['fecha_hasta']),
             ('date', '>=', datos['fecha_desde'])])
 
-        accounts_str = ','.join([str(x) for x in datos['cuentas_id']])
-        self.env.cr.execute(
-            'select a.id, a.code as codigo, a.name as cuenta,a.internal_group as tipo_cuenta,'
-            'a.include_initial_balance as balance_inicial, sum(l.debit) as debe, sum(l.credit) as haber '
-            'from account_move_line l join account_account a on(l.account_id = a.id)'
-            'where a.id in (' + accounts_str + ') and l.date >= %s and l.date <= %s '
-            'group by a.id, a.code, a.name,a.internal_group,a.include_initial_balance ORDER BY a.code',
-            (datos['fecha_desde'], datos['fecha_hasta'])
+        # Use ORM to avoid database schema issues
+        move_lines = self.env['account.move.line'].read_group(
+            domain=[
+                ('account_id', 'in', account_ids),
+                ('date', '>=', datos['fecha_desde']),
+                ('date', '<=', datos['fecha_hasta'])
+            ],
+            fields=['account_id', 'debit', 'credit'],
+            groupby=['account_id'],
+            orderby='account_id',
+            lazy=False
         )
 
-        for r in self.env.cr.dictfetchall():
-            totales['debe'] += r['debe']
-            totales['haber'] += r['haber']
+        for r in move_lines:
+            account = self.env['account.account'].browse(r['account_id'][0])
+            totales['debe'] += r['debit']
+            totales['haber'] += r['credit']
             linea = {
-                'id': r['id'],
-                'codigo': r['codigo'],
-                'cuenta': r['cuenta'],
+                'id': account.id,
+                'codigo': account.code,
+                'cuenta': account.name,
                 'saldo_inicial': 0,
-                'debe': r['debe'],
-                'haber': r['haber'],
+                'debe': r['debit'],
+                'haber': r['credit'],
                 'saldo_final': 0,
-                'balance_inicial': r['balance_inicial']
+                'balance_inicial': account.include_initial_balance
             }
-            if r['tipo_cuenta'] == 'asset':
+            if account.internal_group == 'asset':
                 lineas['activo'].append(linea)
-            elif r['tipo_cuenta'] == 'liability':
+            elif account.internal_group == 'liability':
                 lineas['pasivo'].append(linea)
-            elif r['tipo_cuenta'] == 'equity':
+            elif account.internal_group == 'equity':
                 lineas['capital'].append(linea)
 
         for l in lineas['activo']:

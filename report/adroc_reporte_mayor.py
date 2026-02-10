@@ -11,27 +11,26 @@ class AdrocReporteMayor(models.AbstractModel):
 
     def retornar_saldo_inicial_todos_anios(self, cuenta, fecha_desde):
         saldo_inicial = 0
-        self.env.cr.execute(
-            'select a.id, a.code as codigo, a.name as cuenta, sum(l.debit) as debe, sum(l.credit) as haber '
-            'from account_move_line l join account_account a on(l.account_id = a.id)'
-            'where a.id = %s and l.date < %s group by a.id, a.code, a.name,l.debit,l.credit',
-            (cuenta, fecha_desde)
-        )
-        for m in self.env.cr.dictfetchall():
-            saldo_inicial += m['debe'] - m['haber']
+        # Use ORM instead of raw SQL to avoid database schema issues
+        move_lines = self.env['account.move.line'].search([
+            ('account_id', '=', cuenta),
+            ('date', '<', fecha_desde)
+        ])
+        for line in move_lines:
+            saldo_inicial += line.debit - line.credit
         return saldo_inicial
 
     def retornar_saldo_inicial_inicio_anio(self, cuenta, fecha_desde):
         saldo_inicial = 0
         fecha = fields.Date.from_string(fecha_desde)
-        self.env.cr.execute(
-            'select a.id, a.code as codigo, a.name as cuenta, sum(l.debit) as debe, sum(l.credit) as haber '
-            'from account_move_line l join account_account a on(l.account_id = a.id)'
-            'where a.id = %s and l.date < %s and l.date >= %s group by a.id, a.code, a.name,l.debit,l.credit',
-            (cuenta, fecha_desde, fecha.strftime('%Y-1-1'))
-        )
-        for m in self.env.cr.dictfetchall():
-            saldo_inicial += m['debe'] - m['haber']
+        # Use ORM instead of raw SQL to avoid database schema issues
+        move_lines = self.env['account.move.line'].search([
+            ('account_id', '=', cuenta),
+            ('date', '<', fecha_desde),
+            ('date', '>=', fecha.strftime('%Y-1-1'))
+        ])
+        for line in move_lines:
+            saldo_inicial += line.debit - line.credit
         return saldo_inicial
 
     def lineas(self, datos):
@@ -51,38 +50,41 @@ class AdrocReporteMayor(models.AbstractModel):
             ('date', '<=', datos['fecha_hasta']),
             ('date', '>=', datos['fecha_desde'])])
 
-        accounts_str = ','.join([str(x) for x in datos['cuentas_id']])
         if datos['agrupado_por_dia']:
-            self.env.cr.execute(
-                'select l.move_name, l.name as descripcion, a.id, a.code as codigo, a.name as cuenta, '
-                'l.date as fecha, a.include_initial_balance as balance_inicial, sum(l.debit) as debe, '
-                'sum(l.credit) as haber, l.journal_id '
-                'from account_move_line l join account_account a on(l.account_id = a.id) '
-                'where a.id in (' + accounts_str + ') and l.date >= %s and l.date <= %s '
-                'group by l.move_name, l.name, a.id, a.code, a.name, l.date, a.include_initial_balance, l.journal_id '
-                'ORDER BY a.code, l.date',
-                (datos['fecha_desde'], datos['fecha_hasta'])
+            # Use ORM to avoid database schema issues
+            # Get all move lines for the period grouped by date
+            move_lines = self.env['account.move.line'].read_group(
+                domain=[
+                    ('account_id', 'in', account_ids),
+                    ('date', '>=', datos['fecha_desde']),
+                    ('date', '<=', datos['fecha_hasta'])
+                ],
+                fields=['move_name', 'name', 'account_id', 'date', 'debit', 'credit', 'journal_id'],
+                groupby=['account_id', 'date', 'move_name', 'name', 'journal_id'],
+                orderby='account_id, date',
+                lazy=False
             )
 
             poliza = 0
-            for r in self.env.cr.dictfetchall():
-                totales['debe'] += r['debe']
-                totales['haber'] += r['haber']
+            for r in move_lines:
+                account = self.env['account.account'].browse(r['account_id'][0])
+                totales['debe'] += r['debit']
+                totales['haber'] += r['credit']
                 poliza += 1
                 linea = {
-                    'id': r['id'],
-                    'fecha': r['fecha'],
+                    'id': account.id,
+                    'fecha': r['date'],
                     'poliza': poliza,
-                    'codigo': r['codigo'],
-                    'cuenta': r['cuenta'],
-                    'descripcion': r['descripcion'],
+                    'codigo': account.code,
+                    'cuenta': account.name,
+                    'descripcion': r['name'],
                     'move_name': r['move_name'],
-                    'journal_id': self.env['account.journal'].browse(r['journal_id']).name,
+                    'journal_id': self.env['account.journal'].browse(r['journal_id'][0]).name,
                     'saldo_inicial': 0,
-                    'debe': r['debe'],
-                    'haber': r['haber'],
+                    'debe': r['debit'],
+                    'haber': r['credit'],
                     'saldo_final': 0,
-                    'balance_inicial': r['balance_inicial']
+                    'balance_inicial': account.include_initial_balance
                 }
                 lineas.append(linea)
 
@@ -161,27 +163,32 @@ class AdrocReporteMayor(models.AbstractModel):
             lineas = list(lineas_resumidas.values())
 
         else:
-            self.env.cr.execute(
-                'select a.id, a.code as codigo, a.name as cuenta, a.include_initial_balance as balance_inicial, '
-                'sum(l.debit) as debe, sum(l.credit) as haber '
-                'from account_move_line l join account_account a on(l.account_id = a.id)'
-                'where a.id in (' + accounts_str + ') and l.date >= %s and l.date <= %s '
-                'group by a.id, a.code, a.name,a.include_initial_balance, l.date ORDER BY a.code, l.date',
-                (datos['fecha_desde'], datos['fecha_hasta'])
+            # Use ORM to avoid database schema issues
+            move_lines = self.env['account.move.line'].read_group(
+                domain=[
+                    ('account_id', 'in', account_ids),
+                    ('date', '>=', datos['fecha_desde']),
+                    ('date', '<=', datos['fecha_hasta'])
+                ],
+                fields=['account_id', 'debit', 'credit'],
+                groupby=['account_id', 'date'],
+                orderby='account_id, date',
+                lazy=False
             )
 
-            for r in self.env.cr.dictfetchall():
-                totales['debe'] += r['debe']
-                totales['haber'] += r['haber']
+            for r in move_lines:
+                account = self.env['account.account'].browse(r['account_id'][0])
+                totales['debe'] += r['debit']
+                totales['haber'] += r['credit']
                 linea = {
-                    'id': r['id'],
-                    'codigo': r['codigo'],
-                    'cuenta': r['cuenta'],
+                    'id': account.id,
+                    'codigo': account.code,
+                    'cuenta': account.name,
                     'saldo_inicial': 0,
-                    'debe': r['debe'],
-                    'haber': r['haber'],
+                    'debe': r['debit'],
+                    'haber': r['credit'],
                     'saldo_final': 0,
-                    'balance_inicial': r['balance_inicial']
+                    'balance_inicial': account.include_initial_balance
                 }
                 lineas.append(linea)
 
