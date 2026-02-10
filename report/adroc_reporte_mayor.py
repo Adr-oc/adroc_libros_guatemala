@@ -10,28 +10,36 @@ class AdrocReporteMayor(models.AbstractModel):
     _description = "Reporte de mayor"
 
     def retornar_saldo_inicial_todos_anios(self, cuenta, fecha_desde):
-        saldo_inicial = 0
-        # Use ORM instead of raw SQL to avoid database schema issues
-        move_lines = self.env['account.move.line'].search([
-            ('account_id', '=', cuenta),
-            ('date', '<', fecha_desde)
-        ])
-        for line in move_lines:
-            saldo_inicial += line.debit - line.credit
-        return saldo_inicial
+        # Use read_group for efficient aggregation on database side
+        result = self.env['account.move.line'].read_group(
+            domain=[
+                ('account_id', '=', cuenta),
+                ('date', '<', fecha_desde)
+            ],
+            fields=['debit', 'credit'],
+            groupby=[],
+            lazy=False
+        )
+        if result:
+            return result[0]['debit'] - result[0]['credit']
+        return 0
 
     def retornar_saldo_inicial_inicio_anio(self, cuenta, fecha_desde):
-        saldo_inicial = 0
         fecha = fields.Date.from_string(fecha_desde)
-        # Use ORM instead of raw SQL to avoid database schema issues
-        move_lines = self.env['account.move.line'].search([
-            ('account_id', '=', cuenta),
-            ('date', '<', fecha_desde),
-            ('date', '>=', fecha.strftime('%Y-1-1'))
-        ])
-        for line in move_lines:
-            saldo_inicial += line.debit - line.credit
-        return saldo_inicial
+        # Use read_group for efficient aggregation on database side
+        result = self.env['account.move.line'].read_group(
+            domain=[
+                ('account_id', '=', cuenta),
+                ('date', '<', fecha_desde),
+                ('date', '>=', fecha.strftime('%Y-1-1'))
+            ],
+            fields=['debit', 'credit'],
+            groupby=[],
+            lazy=False
+        )
+        if result:
+            return result[0]['debit'] - result[0]['credit']
+        return 0
 
     def lineas(self, datos):
         totales = {}
