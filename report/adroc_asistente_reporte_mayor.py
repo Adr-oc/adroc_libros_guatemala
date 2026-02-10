@@ -54,11 +54,13 @@ class AdrocAsistenteReporteMayor(models.TransientModel):
 
             hoja.write(0, 0, 'LIBRO MAYOR')
             hoja.write(2, 0, 'NUMERO DE IDENTIFICACION TRIBUTARIA')
-            hoja.write(2, 1, w.cuentas_id[0].company_id.partner_id.vat)
+            # In Odoo 19, company_id changed to company_ids
+            company = w.cuentas_id[0].company_ids[0] if w.cuentas_id[0].company_ids else self.env.company
+            hoja.write(2, 1, company.partner_id.vat)
             hoja.write(3, 0, 'NOMBRE COMERCIAL')
-            hoja.write(3, 1, w.cuentas_id[0].company_id.partner_id.name)
+            hoja.write(3, 1, company.partner_id.name)
             hoja.write(2, 3, 'DOMICILIO FISCAL')
-            hoja.write(2, 4, w.cuentas_id[0].company_id.partner_id.street)
+            hoja.write(2, 4, company.partner_id.street)
             hoja.write(3, 3, 'REGISTRO DEL')
             hoja.write(3, 4, w.fecha_desde, formato_fecha)
             hoja.write(3, 5, 'AL')
