@@ -138,8 +138,16 @@ class AdrocReporteMayor(models.AbstractModel):
                     diario_id = l['journal_id']
                     fecha = l['fecha']
 
+                    # Convert fecha to date object if it's a string
                     if isinstance(fecha, str):
-                        fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+                        try:
+                            fecha = datetime.strptime(fecha, '%Y-%m-%d').date()
+                        except ValueError:
+                            # Skip if fecha is already formatted as text (e.g., 'febrero 2026')
+                            continue
+                    elif not hasattr(fecha, 'month'):
+                        # Skip if fecha is not a date-like object
+                        continue
 
                     meses = {
                         1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril',
