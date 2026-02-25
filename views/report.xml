@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- Paper format landscape para libros contables (16+ columnas) -->
+    <record id="paperformat_libro_contable_landscape" model="report.paperformat">
+        <field name="name">Libro Contable Guatemala (A4 Landscape)</field>
+        <field name="orientation">Landscape</field>
+        <field name="format">A4</field>
+        <field name="margin_top">5</field>
+        <field name="margin_bottom">5</field>
+        <field name="margin_left">3</field>
+        <field name="margin_right">3</field>
+        <field name="header_spacing">20</field>
+        <field name="dpi">90</field>
+    </record>
+
     <!-- Libro de Banco -->
     <record id="adroc_asistente_reporte_banco_view_form" model="ir.ui.view">
         <field name="name">adroc_libros_guatemala.asistente_reporte_banco.form</field>
@@ -84,7 +97,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">adroc_libros_guatemala.adroc_reporte_compras</field>
         <field name="report_file">adroc_libros_guatemala.adroc_reporte_compras</field>
-        <field name="paperformat_id" ref="base.paperformat_us"/>
+        <field name="paperformat_id" ref="paperformat_libro_contable_landscape"/>
     </record>
 
     <!-- Libro de Ventas -->
@@ -129,7 +142,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">adroc_libros_guatemala.adroc_reporte_ventas</field>
         <field name="report_file">adroc_libros_guatemala.adroc_reporte_ventas</field>
-        <field name="paperformat_id" ref="base.paperformat_us"/>
+        <field name="paperformat_id" ref="paperformat_libro_contable_landscape"/>
     </record>
 
     <!-- Libro Diario -->
