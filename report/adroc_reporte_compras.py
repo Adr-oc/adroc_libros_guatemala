@@ -32,9 +32,11 @@ class AdrocReporteCompras(models.AbstractModel):
 
         lineas = []
         for f in facturas:
-            # Obtener invoice_series e invoice_number
-            serie = f.invoice_series if hasattr(f, 'invoice_series') and f.invoice_series else ''
-            numero = f.invoice_number if hasattr(f, 'invoice_number') and f.invoice_number else ''
+            # Obtener serie y numero: priorizar campos originales, fallback a Studio
+            serie = (getattr(f, 'invoice_series', '') or
+                     getattr(f, 'x_studio_serie', '') or '')
+            numero = (getattr(f, 'invoice_number', '') or
+                      getattr(f, 'x_studio_nmero_de_dte', '') or '')
 
             # Si está anulada y NO tiene invoice_series e invoice_number, no incluir
             if f.state == 'cancel' and (not serie or not numero):
